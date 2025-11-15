@@ -171,18 +171,11 @@ CHUNK_COUNT = 8
 # %%
 from os import listdir
 from posixpath import join
-from random import randint
-from matplotlib.pyplot import subplots, close
 from collections import deque
-from random import sample
+from random import sample, randint
+from matplotlib.pyplot import subplots, close
 
-agent = DeepQNetworkAgent(
-	feature_count=FEATURE_COUNT,
-	learning_rate=LEARNING_RATE,
-	gamma=GAMMA,
-	buffer_size=REPLAY_BUFFER_SIZE,
-	batch_size=BATCH_SIZE
-)
+agent = DeepQNetworkAgent(FEATURE_COUNT, LEARNING_RATE, GAMMA, REPLAY_BUFFER_SIZE, BATCH_SIZE)
 
 training_step_counter = 1
 best_hit_score = -1.0
