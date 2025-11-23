@@ -10,11 +10,7 @@ pub struct Entry {
 
 impl Debug for Entry {
 	fn fmt(self: &Self, formatter: &mut Formatter<'_>) -> _Result {
-			formatter.debug_struct("")
-				.field("size", &self.value.len())
-				.field("accessed_at", &self.accessed_at)
-				.field("access_count", &self.access_count)
-				.finish()
+		formatter.debug_struct("").field("size", &self.value.len()).field("accessed_at", &self.accessed_at).field("access_count", &self.access_count).finish()
 	}
 }
 
@@ -47,9 +43,7 @@ pub struct Cache {
 
 impl Cache {
 	pub fn new(model: Model, capacity: usize) -> Result<Cache> {
-		if ARGUMENT.is_verbose {
-			println!("cache initialized with {:?} model and capacity of {}", model, capacity);
-		}
+		print!("cache using {:?} initialized with capacity of {}\n", model, capacity);
 
 		Ok(Cache {
 			entries: HashMap::with_capacity(capacity),
@@ -63,6 +57,12 @@ impl Cache {
 	}
 
 	pub fn set(self: &mut Self, key: &str, entry: Entry) -> Result<()> {
+		let old_entries: String = if ARGUMENT.is_verbose {
+			format!("{:?}", self.entries)
+		} else {
+			String::new()
+		};
+
 		if let Some(old_entry) = self.entries.get_mut(key) {
 			old_entry.value = entry.value;
 			old_entry.accessed_at = entry.accessed_at;
@@ -88,19 +88,25 @@ impl Cache {
 		}
 
 		if ARGUMENT.is_verbose {
-			print!(" from {:?}\n", self.entries);
+			print!(" from {}\n", old_entries);
 		}
 
 		Ok(())
 	}
 
 	pub fn get(self: &mut Self, key: &str) -> Result<Option<&mut Entry>> {
+		let entries: String = if ARGUMENT.is_verbose {
+			format!("{:?}", self.entries)
+		} else {
+			String::new()
+		};
+
 		Ok(if let Some(entry) = self.entries.get_mut(key) {
 			entry.access_count += 1;
 			entry.accessed_at = unix_epoch()?;
 
 			if ARGUMENT.is_verbose {
-				print!("get {}{:?}\n", key, entry);
+				print!("get {} from {}\n", key, entries);
 			}
 
 			Some(entry)
@@ -110,9 +116,15 @@ impl Cache {
 	}
 
 	pub fn remove(self: &mut Self, key: &str) -> bool {
+		let old_entries: String = if ARGUMENT.is_verbose {
+			format!("{:?}", self.entries)
+		} else {
+			String::new()
+		};
+
 		if let Some(entry) = self.entries.remove(key) {
 			if ARGUMENT.is_verbose {
-				print!("removed {}{:?} from {:?}\n", key, entry, self.entries);
+				print!("removed {}{:?} from {}\n", key, entry, old_entries);
 			}
 
 			true
