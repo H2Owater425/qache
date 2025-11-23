@@ -106,13 +106,13 @@ impl Argument {
 				"--help" | "-h" => exit_with!(0, "Usage: qache [OPTIONS]
 
 Options:
-	-M, --model <MODEL>          Set cache model [DQN, LRU, LFU] (default: DQN)
-	-C, --capacity <CAPACITY>    Set cache capacity (default: 128)
-	-D, --directory <DIRECTORY>  Set data directory (default: ./data)
-	-P, --port <PORT>            Set server port (default: 5190)
-	-v, --verbose                Enable verbose output
-	-V, --version                Print version information
-	-h, --help                   Print this help message
+  -M, --model <MODEL>          Set cache model [DQN, LRU, LFU] (default: DQN)
+  -C, --capacity <CAPACITY>    Set cache capacity (default: 128)
+  -D, --directory <DIRECTORY>  Set data directory (default: ./data)
+  -P, --port <PORT>            Set server port (default: 5190)
+  -v, --verbose                Enable verbose output
+  -V, --version                Print version information
+  -h, --help                   Print this help message
 "),
 				"--" => if let Some(_) = arguments.next() {
 					exit_with!(1, "positional arguments must not be provided\n");
