@@ -1,16 +1,38 @@
 use std::{cmp::Ordering, error::Error, fmt::{Display, Formatter, Result as _Result}, io::{Read, Write}, net::TcpStream};
 use crate::common::{ARGUMENT, Result};
 
-pub const OPERATION_READY: u8 = 0b10000000;
-pub const OPERATION_HELLO: u8 = 0b00000000;
-pub const OPERATION_NOP: u8 = 0b00000010;
-pub const OPERATION_SET: u8 = 0b00000011;
-pub const OPERATION_DEL: u8 = 0b00000100;
-pub const OPERATION_GET: u8 = 0b00000101;
-pub const OPERATION_OK: u8 = 0b10000010;
-pub const OPERATION_VALUE: u8 = 0b10000011;
-pub const OPERATION_ERROR: u8 = 0b10000100;
-pub const OPERATION_QUIT: u8 = 0b11111111;
+/*
+	big endian
+
+	-- handshake --
+	READY
+	HELLO <major:u8> <minor:u8> <patch:u8>
+
+	-- request --
+	NOP
+	SET   <length:u32> <key:String> <length:u32> <value:String>
+	DEL   <length:u32> <key:String>
+	GET   <length:u32> <key:String>
+
+	-- responses --
+	OKAY
+	VALUE <length:u32> <value:String>
+	ERROR <length:u32> <message:String>
+
+	-- termination --
+	QUIT
+*/
+
+pub const OPERATION_READY: &[u8; 1] = &[0b10000000];
+pub const OPERATION_HELLO: &[u8; 1] = &[0b00000000];
+pub const OPERATION_NOP: &[u8; 1] = &[0b00000010];
+pub const OPERATION_SET: &[u8; 1] = &[0b00000011];
+pub const OPERATION_DEL: &[u8; 1] = &[0b00000100];
+pub const OPERATION_GET: &[u8; 1] = &[0b00000101];
+pub const OPERATION_OK: &[u8; 1] = &[0b10000010];
+pub const OPERATION_VALUE: &[u8; 1] = &[0b10000011];
+pub const OPERATION_ERROR: &[u8; 1] = &[0b10000100];
+pub const OPERATION_QUIT: &[u8; 1] = &[0b11111111];
 
 pub fn read_string<const N: usize>(stream: &mut TcpStream, length: &mut [u8; N]) -> Result<String> {
 	if N != 1 && N != 4 {
@@ -121,19 +143,14 @@ impl Display for Version {
 	}
 }
 
-pub fn send_error(stream: &mut TcpStream, error: Box<dyn Error>) -> Result<()> {
-	let message: String = error.to_string();
+pub fn send_error(stream: &mut TcpStream, message: String) -> Result<()> {
 	let message_length: usize = message.len();
 
-	if message_length == 0 {
-		return Err(Box::from("")); // QUIT
-	}
-
 	if ARGUMENT.is_verbose {
-		eprint!("error {}\n", message);
+		eprint!("{} from {}\n", message, stream.peer_addr()?);
 	}
 
-	stream.write(&[OPERATION_ERROR, (message_length >> 24) as u8, (message_length >> 16) as u8, (message_length >> 8) as u8, message_length as u8])?;
+	stream.write(&[OPERATION_ERROR[0], (message_length >> 24) as u8, (message_length >> 16) as u8, (message_length >> 8) as u8, message_length as u8])?;
 	stream.write_all(message.as_bytes())?;
 
 	Ok(())
