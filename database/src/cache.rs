@@ -103,7 +103,7 @@ impl Cache {
 		Ok(())
 	}
 
-	pub fn get(self: &mut Self, key: &str) -> Result<Option<&mut Entry>> {
+	pub fn get(self: &mut Self, key: &str) -> Result<Option<&Entry>> {
 		let entries: String = if ARGUMENT.is_verbose {
 			format!("{:?}", self.entries)
 		} else {

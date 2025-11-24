@@ -118,9 +118,12 @@ fn main() -> Result<()> {
 							cache.lock()
 								.map_err(|error: PoisonError<MutexGuard<'_, Cache>>| error.to_string())?
 								.remove(&key);
-							storage.write()
+
+							if !storage.write()
 								.map_err(|error: PoisonError<RwLockWriteGuard<'_, Storage>>| error.to_string())?
-								.delete(&key)?;
+								.delete(&key)? {
+								return Err(Box::from("key must exist"));
+							}
 
 							stream.write(OPERATION_OK)?;
 						},
@@ -131,12 +134,16 @@ fn main() -> Result<()> {
 								.get(&key)? {
 								(true, entry.value.clone())
 							} else {
-								(false, storage.read()
+								if let Some(value) = storage.read()
 									.map_err(|error: PoisonError<RwLockReadGuard<'_, Storage>>| error.to_string())?
-									.read(&key)?)
+									.read(&key)? {
+										(false, value)
+									} else {
+										return Err(Box::from("key must exist"));
+									}
 							};
 
-							if !is_cached && value.len() != 0 {
+							if !is_cached {
 								cache.lock()
 									.map_err(|error: PoisonError<MutexGuard<'_, Cache>>| error.to_string())?
 									.set(&key, Entry::new(&value)?)?;

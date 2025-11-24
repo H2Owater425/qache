@@ -19,7 +19,7 @@ impl Storage {
 		})
 	}
 
-	pub fn read(self: &Self, key: &str) -> Result<String> {
+	pub fn read(self: &Self, key: &str) -> Result<Option<String>> {
 		let file: PathBuf = self.root.join(key);
 
 		if ARGUMENT.is_verbose {
@@ -27,9 +27,9 @@ impl Storage {
 		}
 
 		Ok(if exists(&file)? {
-			String::from_utf8(read(&file)?)?
+			Some(String::from_utf8(read(&file)?)?)
 		} else {
-			String::new()
+			None
 		})
 	}
 
@@ -43,7 +43,7 @@ impl Storage {
 		Ok(write(&file, value)?)
 	}
 
-	pub fn delete(self: &Self, key: &str) -> Result<()> {
+	pub fn delete(self: &Self, key: &str) -> Result<bool> {
 		let file: PathBuf = self.root.join(key);
 
 		if ARGUMENT.is_verbose {
@@ -51,9 +51,11 @@ impl Storage {
 		}
 
 		if exists(&file)? {
-			remove_file(&file)?
-		}
+			remove_file(&file)?;
 
-		Ok(())
+			Ok(true)
+		} else {
+			Ok(false)
+		}
 	}
 }
