@@ -44,15 +44,15 @@ pub const OPERATION_ERROR: &[u8; 1] = &[0b10000100];
 pub const OPERATION_QUIT: &[u8; 1] = &[0b11111111];
 
 pub fn read_string<const N: usize>(stream: &mut TcpStream, byte_or_double_word: &mut [u8; N]) -> Result<String> {
-	let mut buffer: Vec<u8> = Vec::with_capacity(if N == 1 {
+	stream.read_exact(byte_or_double_word)?;
+
+	let mut buffer: Vec<u8> = vec![0; if N == 1 {
 		byte_or_double_word[0] as usize
 	} else if N == 4 {
 		(byte_or_double_word[0] as usize) << 24 | (byte_or_double_word[1] as usize) << 16 | (byte_or_double_word[2] as usize) << 8 | byte_or_double_word[3] as usize
 	} else {
 		return Err(Box::from("buffer size must be 1 or 4"));
-	});
-
-	stream.read_exact(byte_or_double_word)?;
+	}];
 
 	if buffer.len() == 0 {
 		return Err(Box::from("length must be greater than 0"));
