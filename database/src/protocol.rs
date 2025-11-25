@@ -11,14 +11,14 @@ use crate::common::{Result, ARGUMENT};
 	big endian
 
 	-- handshake --
-	READY
+	READY <major:u8> <minor:u8> <patch:u8>
 	HELLO <major:u8> <minor:u8> <patch:u8>
 
 	-- request --
 	NOP
-	SET   <length:u32> <key:String> <length:u32> <value:String>
-	DEL   <length:u32> <key:String>
-	GET   <length:u32> <key:String>
+	SET   <length:u8> <key:String> <length:u32> <value:String>
+	DEL   <length:u8> <key:String>
+	GET   <length:u8> <key:String>
 
 	-- responses --
 	OKAY
