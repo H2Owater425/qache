@@ -66,6 +66,8 @@ impl Argument {
 
 		let mut arguments: Args = args();
 
+		arguments.next();
+
 		while let Some(value) = arguments.next() {
 			match value.as_str() {
 				"--model" | "-m" => if let Some(raw_model) = arguments.next() {
