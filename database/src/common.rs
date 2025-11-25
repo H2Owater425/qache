@@ -15,9 +15,9 @@ pub type Job = Box<dyn FnOnce() + Send + 'static>;
 
 pub type Result<T, E = Box<dyn Error>> = _Result<T, E>;
 
-pub static ARGUMENT: LazyLock<Argument> = LazyLock::new(|| Argument::new().unwrap());
+pub const ARGUMENT: LazyLock<Argument> = LazyLock::new(|| Argument::new().unwrap());
 
-pub static LOGGER: LazyLock<Logger> = LazyLock::new(|| Logger::new(stdout(), stderr(), 0));
+pub const LOGGER: LazyLock<Logger> = LazyLock::new(|| Logger::new(stdout(), stderr(), 0));
 
 #[macro_export]
 macro_rules! info {
