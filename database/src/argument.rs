@@ -6,6 +6,7 @@ use std::{
 		current_exe
 	},
 	fs::metadata,
+	iter::Skip,
 	net::Ipv4Addr,
 	process::exit
 };
@@ -64,9 +65,7 @@ impl Argument {
 			return Err(Box::from("executable path must be valid"));
 		};
 
-		let mut arguments: Args = args();
-
-		arguments.next();
+		let mut arguments: Skip<Args> = args().skip(1);
 
 		while let Some(value) = arguments.next() {
 			match value.as_str() {
