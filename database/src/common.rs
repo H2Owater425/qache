@@ -36,12 +36,12 @@ macro_rules! info {
 	}
 }
 
-//#[macro_export]
-//macro_rules! fatal {
-//	($($arg:tt)*) => {
-//		crate::common::LOGGER.fatal(&format!($($arg)*));
-//	}
-//}
+#[macro_export]
+macro_rules! fatal {
+	($($arg:tt)*) => {
+		crate::common::LOGGER.fatal(&format!($($arg)*));
+	}
+}
 
 #[macro_export]
 macro_rules! error {

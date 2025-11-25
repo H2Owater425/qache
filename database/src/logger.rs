@@ -1,11 +1,11 @@
 use std::{
 	cell::{RefCell, RefMut},
 	io::{IoSlice, Write},
-	sync::{Arc, LazyLock, Mutex}
+	sync::{Arc, LazyLock, Mutex, MutexGuard}
 };
 use crate::common::unix_epoch;
 
-//const FATAL_SLICE: LazyLock<IoSlice<'static>> = LazyLock::new(|| IoSlice::new(b"\x1b[31m FATAL \x1b[0m"));
+const FATAL_SLICE: LazyLock<IoSlice<'static>> = LazyLock::new(|| IoSlice::new(b"\x1b[31m FATAL \x1b[0m"));
 const ERROR_SLICE: LazyLock<IoSlice<'static>> = LazyLock::new(|| IoSlice::new(b"\x1b[31m ERROR \x1b[0m"));
 const WARN_SLICE: LazyLock<IoSlice<'static>> = LazyLock::new(|| IoSlice::new(b"\x1b[33m WARN \x1b[0m"));
 const INFO_SLICE: LazyLock<IoSlice<'static>> = LazyLock::new(|| IoSlice::new(b"\x1b[32m INFO \x1b[0m"));
@@ -104,14 +104,16 @@ impl Logger {
 				timestamp.last_second = current_second;
 			}
 
-			if level < 3 {
+			let mut writer: MutexGuard<'_, dyn Write + Send>  = if level < 3 {
 				self.error.lock().unwrap()
 			} else {
 				self.output.lock().unwrap()
-			}.write_vectored(&[
+			};
+
+			writer.write_vectored(&[
 				IoSlice::new(&timestamp.buffer),
 				match level {
-					//1 => *FATAL_SLICE,
+					1 => *FATAL_SLICE,
 					2 => *ERROR_SLICE,
 					3 => *WARN_SLICE,
 					4 => *INFO_SLICE,
@@ -120,13 +122,16 @@ impl Logger {
 					_ => *INFO_SLICE
 				},
 				IoSlice::new(message.as_bytes())
-			]).unwrap();
+			])
+				.unwrap();
+			writer.flush()
+				.unwrap();
 		});
 	}
 
-	//pub fn fatal(self: &Self, message: &str) {
-	//	self.log(1, message);
-	//}
+	pub fn fatal(self: &Self, message: &str) {
+		self.log(1, message);
+	}
 
 	pub fn error(self: &Self, message: &str) {
 		self.log(2, message);
