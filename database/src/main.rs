@@ -50,11 +50,11 @@ fn main() {
 	
 		let cache: Arc<Mutex<Cache>> = Arc::new(Mutex::new(Cache::new(ARGUMENT.model, ARGUMENT.capacity)?));
 		let storage: Arc<RwLock<Storage>> = Arc::new(RwLock::new(Storage::new(&ARGUMENT.directory)?));
-		let thread_pool: ThreadPool = ThreadPool::new(available_parallelism()?.get())?;
+		let thread_pool: ThreadPool = ThreadPool::new(available_parallelism()?.get() * 2)?;
 		let listener: TcpListener = TcpListener::bind((ARGUMENT.host, ARGUMENT.port))?;
-	
-		info!("lisening on 0.0.0.0:{}\n", ARGUMENT.port);
-	
+
+		info!("lisening on 0.0.0.0:{} with {} threads\n", ARGUMENT.port, thread_pool.size());
+
 		for stream in listener.incoming() {
 			let mut stream: TcpStream = stream?;
 			let cache: Arc<Mutex<Cache>> = cache.clone();

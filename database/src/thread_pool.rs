@@ -76,6 +76,10 @@ impl ThreadPool {
 
 		Ok(())
 	}
+
+	pub fn size(self: &Self) -> usize {
+		self.threads.len()
+	}
 }
 
 impl Drop for ThreadPool {
