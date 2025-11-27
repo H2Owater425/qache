@@ -67,7 +67,10 @@ fn main() {
 				let mut double_word: [u8; 4] = [0; 4];
 
 				if let Err(error) = (|| -> Result<()> {
-					stream.write(&[OPERATION_READY[0], ARGUMENT.version.major(), ARGUMENT.version.minor(),ARGUMENT.version.patch()])?;
+					stream.write_vectored(&[
+						IoSlice::new(OPERATION_READY),
+						IoSlice::new(&ARGUMENT.version.as_bytes())
+					])?;
 
 					// Use value_length as handshake
 					stream.read_exact(&mut double_word)?;

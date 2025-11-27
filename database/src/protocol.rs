@@ -97,16 +97,8 @@ impl Version {
 		}
 	}
 
-	pub fn major(self: &Self) -> u8 {
-		self.major
-	}
-
-	pub fn minor(self: &Self) -> u8 {
-		self.minor
-	}
-
-	pub fn patch(self: &Self) -> u8 {
-		self.patch
+	pub fn as_bytes(self: &Self) -> [u8; 3] {
+		[self.major, self.minor, self.patch]
 	}
 }
 
